@@ -1,70 +1,35 @@
 <template>
   <div class="config-type-list">
-    <div class="sf-panel">
-      <div class="corner-br"></div>
-      <div class="sf-panel-header">
-        <el-icon><Document /></el-icon>
-        <span>Config Types</span>
-        <button class="sf-button primary" @click="$router.push('/types/create')" style="margin-left: auto;">
-          <el-icon><Plus /></el-icon>
-          <span>New Type</span>
-        </button>
-      </div>
-      <div class="sf-panel-content">
-        <table class="sf-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Format</th>
-              <th>Instances</th>
-              <th>Description</th>
-              <th>Updated</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody v-if="!loading">
-            <tr v-for="type in types" :key="type.name" class="slide-in">
-              <td class="font-tech-mono">{{ type.name }}</td>
-              <td>{{ type.title }}</td>
-              <td>
-                <span class="sf-tag" :class="type.format">
-                  {{ type.format.toUpperCase() }}
-                </span>
-              </td>
-              <td class="font-tech-mono">{{ type.instance_count || 0 }}</td>
-              <td class="text-dimmed">{{ type.description || '-' }}</td>
-              <td class="font-tech-mono text-dimmed">{{ formatDate(type.updated_at) }}</td>
-              <td>
-                <button class="sf-button" style="padding: 6px 12px; font-size: 10px;" @click="editType(type)">
-                  EDIT
-                </button>
-                <button class="sf-button danger" style="padding: 6px 12px; font-size: 10px; margin-left: 8px;" @click="deleteType(type)">
-                  DEL
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        
-        <!-- Loading State -->
-        <div v-if="loading" class="loading-state">
-          <div class="data-label">Loading data...</div>
-          <div class="sf-progress" style="margin-top: 15px;">
-            <div class="sf-progress-bar" style="width: 60%;"></div>
-          </div>
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span>配置类型列表</span>
+          <el-button type="primary" @click="$router.push('/types/create')">
+            <el-icon><Plus /></el-icon>新建类型
+          </el-button>
         </div>
-        
-        <!-- Empty State -->
-        <div v-if="!loading && types.length === 0" class="empty-state">
-          <el-icon :size="48" class="text-dimmed"><Document /></el-icon>
-          <div class="data-label" style="margin-top: 15px;">No config types found</div>
-          <button class="sf-button primary" style="margin-top: 20px;" @click="$router.push('/types/create')">
-            Create First Type
-          </button>
-        </div>
-      </div>
-    </div>
+      </template>
+
+      <el-table :data="types" v-loading="loading" stripe>
+        <el-table-column prop="name" label="类型标识" width="150" />
+        <el-table-column prop="title" label="显示名称" width="200" />
+        <el-table-column prop="format" label="格式" width="100">
+          <template #default="scope">
+            <el-tag :type="scope.row.format === 'json' ? 'success' : 'warning'">
+              {{ scope.row.format.toUpperCase() }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="instance_count" label="实例数" width="100" />
+        <el-table-column prop="updated_at" label="更新时间" width="180" />
+        <el-table-column label="操作" width="200" fixed="right">
+          <template #default="scope">
+            <el-button link type="primary" @click="editType(scope.row)">编辑</el-button>
+            <el-button link type="danger" @click="deleteType(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
   </div>
 </template>
 
@@ -72,7 +37,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Document } from '@element-plus/icons-vue'
+import { Plus } from '@element-plus/icons-vue'
 import { configTypeApi } from '../api/config'
 
 const router = useRouter()
@@ -83,9 +48,10 @@ const loadTypes = async () => {
   loading.value = true
   try {
     const res = await configTypeApi.list()
-    types.value = res.data.results || res.data
+    types.value = res.data.results || res.data || []
   } catch (error) {
-    ElMessage.error('Failed to load config types')
+    ElMessage.error('加载配置类型失败')
+    console.error(error)
   } finally {
     loading.value = false
   }
@@ -97,52 +63,26 @@ const editType = (row) => {
 
 const deleteType = async (row) => {
   try {
-    await ElMessageBox.confirm(
-      `Delete config type "${row.title}"?`,
-      'Confirm Delete',
-      { 
-        type: 'warning',
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel'
-      }
-    )
+    await ElMessageBox.confirm('确定要删除该配置类型吗？', '提示', {
+      type: 'warning'
+    })
     await configTypeApi.delete(row.name)
-    ElMessage.success('Deleted successfully')
+    ElMessage.success('删除成功')
     loadTypes()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('Delete failed')
+      ElMessage.error('删除失败')
     }
   }
-}
-
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString()
 }
 
 onMounted(loadTypes)
 </script>
 
 <style scoped>
-@import '../styles/sci-fi-theme.css';
-
-.sf-panel-header {
+.card-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-}
-
-.loading-state {
-  padding: 40px;
-  text-align: center;
-}
-
-.empty-state {
-  padding: 60px;
-  text-align: center;
-}
-
-.text-dimmed {
-  color: var(--text-dimmed);
 }
 </style>

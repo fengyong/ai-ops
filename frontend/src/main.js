@@ -4,6 +4,10 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+// JSON Editor styles
+import '@json-editor/json-editor/src/style.css'
+import '@json-editor/json-editor/src/themes/bootstrap4.css'
+
 import App from './App.vue'
 import router from './router'
 

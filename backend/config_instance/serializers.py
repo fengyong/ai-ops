@@ -21,7 +21,7 @@ class ConfigInstanceSerializer(serializers.ModelSerializer):
         """验证配置内容"""
         config_type = data.get('config_type')
         format_type = data.get('format', 'json')
-        content = data.get('content', '')
+        content = data.pop('content', '')
         
         # 验证内容格式
         try:

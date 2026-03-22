@@ -1,8 +1,12 @@
 # ConfigHub - 配置管理中心
 
-一个基于 Django + Vue3 的配置文件管理系统，支持 JSON/TOML 格式，具备版本管理和审计功能。
+一个基于 Django + Vue3 的配置文件管理系统，支持 JSON/TOML 格式，具备可视化表单编辑、版本管理和审计功能。
 
 ## 系统访问
+
+### 前端界面
+- **地址**: http://localhost:3000/
+- **功能**: 配置类型管理、配置实例管理（支持表单/代码双模式编辑）
 
 ### 管理后台 (Django Admin)
 - **地址**: http://localhost:8000/admin/
@@ -14,6 +18,28 @@
 - **配置类型**: http://localhost:8000/api/types/
 - **配置实例**: http://localhost:8000/api/instances/
 
+## 核心功能
+
+### 1. 配置类型管理
+- 定义配置模板，支持 JSON Schema 约束
+- 支持 JSON/TOML 两种格式
+- Schema 可视化编辑（表单 + 代码双模式）
+
+### 2. 配置实例管理
+- **JSON 格式**: 支持表单编辑（基于 JSON Schema）和代码编辑（Monaco 编辑器）
+- **TOML 格式**: 支持代码编辑（Monaco 编辑器）
+- 自动格式验证和 Schema 校验
+- 实时预览和错误提示
+
+### 3. 版本控制
+- 自动版本管理（每次保存递增版本号）
+- 支持历史版本查看和回滚
+- 版本对比功能
+
+### 4. 审计日志
+- 记录所有创建、更新、删除操作
+- 包含操作人、时间、变更内容
+
 ## 快速开始
 
 ### 1. 启动后端服务
@@ -23,17 +49,39 @@ cd backend
 .\venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
 ```
 
-### 2. 管理后台使用
+### 2. 启动前端服务
 
-1. 访问 http://localhost:8000/admin/
-2. 使用账号 `admin` / 密码 `admin123` 登录
-3. 可以管理以下内容：
-   - **Config Types** - 配置类型定义
-   - **Config Instances** - 配置实例数据
-   - **Audit Logs** - 操作审计日志
-   - **Config Versions** - 版本历史
+```bash
+cd frontend
+npm run dev
+```
 
-### 3. API 使用示例
+### 3. 访问系统
+
+- 前端界面: http://localhost:3000/
+- 管理后台: http://localhost:8000/admin/
+
+## 使用指南
+
+### 创建配置类型
+
+1. 进入前端界面，点击"配置类型" → "新建类型"
+2. 填写类型标识（如 `app_theme`）、显示名称
+3. 选择格式（JSON 或 TOML）
+4. 定义 JSON Schema（支持表单编辑或代码编辑）
+5. 保存
+
+### 创建配置实例
+
+1. 点击"配置实例" → "新建实例"
+2. 选择配置类型
+3. 填写实例名称
+4. 根据格式选择编辑方式：
+   - **JSON + 有 Schema**: 可选择"表单编辑"或"代码编辑"
+   - **TOML 或无 Schema**: 使用"代码编辑"
+5. 填写配置内容并保存
+
+### API 使用示例
 
 ```bash
 # 获取配置类型列表
@@ -46,54 +94,59 @@ curl http://localhost:8000/api/instances/
 curl -X POST http://localhost:8000/api/types/ \
   -H "Content-Type: application/json" \
   -d '{"name":"db_config","title":"Database Config","format":"json","schema":{}}'
+
+# 创建配置实例
+curl -X POST http://localhost:8000/api/instances/ \
+  -H "Content-Type: application/json" \
+  -d '{"config_type":1,"name":"production_db","format":"json","content":"{\"host\":\"localhost\"}"}'
 ```
-
-## 功能模块
-
-| 模块 | 描述 |
-|------|------|
-| 配置类型管理 | 定义配置模板，支持 JSON Schema |
-| 配置实例管理 | 基于类型创建具体配置，支持 JSON/TOML |
-| 版本控制 | 自动版本管理，支持历史回滚 |
-| 审计日志 | 记录所有操作，便于追踪 |
 
 ## 技术栈
 
-- **后端**: Django 6.0 + Django REST Framework
-- **前端**: Vue 3 + Vite + Element Plus
-- **数据库**: SQLite (开发) / MySQL 8.0 (生产)
-- **部署**: Docker + Docker Compose
+| 层级 | 技术 |
+|------|------|
+| 后端 | Django 6.0 + Django REST Framework |
+| 前端 | Vue 3 + Vite + Element Plus |
+| 编辑器 | @json-editor/json-editor + CodeMirror |
+| 数据库 | SQLite (开发) / MySQL 8.0 (生产) |
+| 部署 | Docker + Docker Compose |
 
 ## 项目结构
 
 ```
 ai-ops/
-├── backend/          # Django 后端
-│   ├── config_type/  # 配置类型应用
-│   ├── config_instance/  # 配置实例应用
-│   ├── versioning/   # 版本管理应用
-│   ├── audit/        # 审计日志应用
+├── backend/                 # Django 后端
+│   ├── config_type/         # 配置类型应用
+│   ├── config_instance/     # 配置实例应用
+│   ├── versioning/          # 版本管理应用
+│   ├── audit/               # 审计日志应用
 │   └── manage.py
-├── frontend/         # Vue 前端
-│   ├── src/views/    # 页面组件
-│   └── src/styles/   # 样式文件
-├── design/           # 设计文档
-│   ├── review/       # 代码审查报告
-│   └── issue/        # 问题记录
+├── frontend/                # Vue 前端
+│   ├── src/
+│   │   ├── views/           # 页面组件
+│   │   ├── components/      # 通用组件
+│   │   │   ├── JsonSchemaEditor.vue   # JSON Schema 表单编辑器
+│   │   │   └── CodeEditor.vue         # 代码编辑器
+│   │   └── api/             # API 接口
+│   └── package.json
+├── design/                  # 设计文档
+│   ├── review/              # 代码审查报告
+│   └── issue/               # 问题记录
 └── docker-compose.yml
 ```
 
 ## 默认数据
 
 系统已预置测试数据：
-- 配置类型: Database Configuration, Application Settings
-- 配置实例: production_db
+- **配置类型**: Database Configuration, Application Settings, Server Configuration (TOML), App Theme
+- **配置实例**: production_db, production_server (TOML, 59行)
 
 ## 注意事项
 
 1. 当前为开发模式 (DEBUG=True)
 2. CORS 允许所有来源 (开发便利)
 3. 生产部署前请修改安全配置
+4. 前端使用 Element Plus 默认主题
 
 ## 更多信息
 
