@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: confighub
+      MYSQL_USER: confighub
+      MYSQL_PASSWORD: confighub123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=caching_sha2_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DB_ENGINE: mysql8
+      DB_NAME: confighub
+      DB_USER: confighub
+      DB_PASSWORD: confighub123
+      DB_HOST: db
+      DB_PORT: 3306
+      DJANGO_SECRET_KEY: your-secret-key-here-change-in-production
+      DJANGO_DEBUG: "False"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - backend_static:/app/static
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mysql_data:
+  backend_static:

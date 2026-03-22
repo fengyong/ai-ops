@@ -1,0 +1,7 @@
+Django>=4.2,<5.0
+djangorestframework>=3.14.0
+django-cors-headers>=4.0.0
+toml>=0.10.2
+jsonschema>=4.23.0
+gunicorn>=21.0.0
+mysqlclient>=2.1.0
