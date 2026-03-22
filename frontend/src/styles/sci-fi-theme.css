@@ -1,0 +1,493 @@
+/* Sci-Fi Theme for ConfigHub */
+
+/* ===== CSS Variables ===== */
+:root {
+  /* Neon Colors */
+  --neon-cyan: #00f0ff;
+  --neon-magenta: #ff00ff;
+  --neon-blue: #0080ff;
+  --neon-pink: #ff0080;
+  --neon-green: #00ff88;
+  --neon-orange: #ffaa00;
+  --neon-red: #ff0044;
+  
+  /* Background Colors */
+  --deep-space: #0a0a0f;
+  --dark-void: #12121a;
+  --midnight: #1a1a2e;
+  --void-lighter: #252540;
+  
+  /* Text Colors */
+  --text-bright: #ffffff;
+  --text-primary: #e0e0ff;
+  --text-secondary: #a0a0c0;
+  --text-dimmed: #606080;
+  
+  /* Border Colors */
+  --border-neon: rgba(0, 240, 255, 0.5);
+  --border-dimmed: rgba(0, 240, 255, 0.2);
+  --border-subtle: rgba(0, 240, 255, 0.1);
+}
+
+/* ===== Global Styles ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--deep-space);
+  color: var(--text-primary);
+}
+
+/* Grid Background */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Scanline Effect */
+.scanlines::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.3;
+}
+
+/* ===== Glow Effects ===== */
+.neon-glow {
+  box-shadow: 
+    0 0 5px var(--neon-cyan),
+    0 0 10px var(--neon-cyan),
+    0 0 20px rgba(0, 240, 255, 0.5);
+}
+
+.neon-glow-magenta {
+  box-shadow: 
+    0 0 5px var(--neon-magenta),
+    0 0 10px var(--neon-magenta),
+    0 0 20px rgba(255, 0, 255, 0.5);
+}
+
+.text-glow {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor;
+}
+
+/* ===== Typography ===== */
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.font-tech-mono {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.text-neon-cyan {
+  color: var(--neon-cyan);
+}
+
+.text-neon-magenta {
+  color: var(--neon-magenta);
+}
+
+/* ===== Sci-Fi Button ===== */
+.sf-button {
+  background: transparent;
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  padding: 10px 20px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.sf-button:hover {
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 
+    0 0 10px rgba(0, 240, 255, 0.5),
+    inset 0 0 10px rgba(0, 240, 255, 0.1);
+  text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+.sf-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 240, 255, 0.4),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.sf-button:hover::before {
+  left: 100%;
+}
+
+.sf-button.primary {
+  background: rgba(0, 240, 255, 0.1);
+}
+
+.sf-button.danger {
+  border-color: var(--neon-red);
+  color: var(--neon-red);
+}
+
+.sf-button.danger:hover {
+  background: rgba(255, 0, 68, 0.15);
+  box-shadow: 0 0 10px rgba(255, 0, 68, 0.5);
+}
+
+/* ===== Sci-Fi Card/Panel ===== */
+.sf-panel {
+  background: rgba(18, 18, 26, 0.9);
+  border: 1px solid var(--border-dimmed);
+  border-radius: 4px;
+  position: relative;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.sf-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--neon-cyan),
+    transparent
+  );
+}
+
+.sf-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  border-top: 2px solid var(--neon-cyan);
+  border-left: 2px solid var(--neon-cyan);
+  opacity: 0.7;
+}
+
+.sf-panel .corner-br {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-bottom: 2px solid var(--neon-cyan);
+  border-right: 2px solid var(--neon-cyan);
+  opacity: 0.7;
+}
+
+.sf-panel-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--neon-cyan);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sf-panel-content {
+  padding: 20px;
+}
+
+/* ===== Sci-Fi Input ===== */
+.sf-input {
+  background: rgba(10, 10, 15, 0.8);
+  border: 1px solid var(--border-dimmed);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.sf-input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  box-shadow: 
+    0 0 10px rgba(0, 240, 255, 0.3),
+    inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+.sf-input::placeholder {
+  color: var(--text-dimmed);
+}
+
+/* ===== Status Indicators ===== */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.status-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-online {
+  background: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green);
+}
+
+.status-online::after {
+  border: 1px solid var(--neon-green);
+}
+
+.status-warning {
+  background: var(--neon-orange);
+  box-shadow: 0 0 10px var(--neon-orange);
+}
+
+.status-warning::after {
+  border: 1px solid var(--neon-orange);
+}
+
+.status-danger {
+  background: var(--neon-red);
+  box-shadow: 0 0 10px var(--neon-red);
+}
+
+.status-danger::after {
+  border: 1px solid var(--neon-red);
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* ===== Progress Bar ===== */
+.sf-progress {
+  height: 6px;
+  background: rgba(0, 240, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sf-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+  box-shadow: 0 0 10px var(--neon-cyan);
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.sf-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5));
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-20px); }
+  100% { transform: translateX(20px); }
+}
+
+/* ===== Data Display ===== */
+.data-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 24px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.data-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+}
+
+/* ===== Navigation ===== */
+.sf-nav {
+  background: var(--dark-void);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.sf-nav-item {
+  padding: 15px 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sf-nav-item:hover {
+  background: rgba(0, 240, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.sf-nav-item.active {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--neon-cyan);
+  border-left-color: var(--neon-cyan);
+  text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* ===== Table Styles ===== */
+.sf-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sf-table th {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--neon-cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-dimmed);
+}
+
+.sf-table td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.sf-table tr:hover td {
+  background: rgba(0, 240, 255, 0.05);
+}
+
+/* ===== Tag/Badge ===== */
+.sf-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.sf-tag.json {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+.sf-tag.toml {
+  background: rgba(255, 0, 255, 0.1);
+  border-color: var(--neon-magenta);
+  color: var(--neon-magenta);
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-dimmed);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}
+
+/* ===== Animations ===== */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.flicker {
+  animation: flicker 3s ease-in-out infinite;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in {
+  animation: slide-in 0.5s ease;
+}
