@@ -16,6 +16,13 @@
 - [config_instance/serializers.py](file://backend/config_instance/serializers.py)
 </cite>
 
+## Update Summary
+**Changes Made**
+- Added new API Root Endpoint section documenting the centralized API discovery functionality
+- Updated Architecture Overview to include the new API root endpoint
+- Enhanced Project Structure diagram to show the new root endpoint integration
+- Updated URL routing explanation to reflect the new centralized endpoint approach
+
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Project Structure](#project-structure)
@@ -31,13 +38,18 @@
 ## Introduction
 This document provides comprehensive API documentation for the AI-Ops Configuration Hub backend REST APIs. It covers configuration type management, configuration instance management, version control, and audit log operations. For each endpoint, you will find HTTP methods, URL patterns, request/response schemas, authentication requirements, and error handling. It also documents pagination, filtering, and security considerations.
 
+**Updated** The API now includes a centralized root endpoint that provides structured discovery of available endpoints for admin access and resource navigation.
+
 ## Project Structure
-The backend is a Django application with Django REST Framework (DRF) providing automatic CRUD endpoints via ViewSets and routers. URL routing is organized under /api/, with separate routers for configuration types and instances.
+The backend is a Django application with Django REST Framework (DRF) providing automatic CRUD endpoints via ViewSets and routers. URL routing is organized under /api/, with separate routers for configuration types and instances. A new centralized API root endpoint provides discovery of available endpoints.
 
 ```mermaid
 graph TB
-Root["confighub/urls.py<br/>Root URLs include app routers"] --> CT["config_type/urls.py<br/>Router for 'types'"]
+Root["confighub/urls.py<br/>Root API endpoint + app routers"] --> APIRoot["api_root()<br/>Centralized API Discovery"]
+Root --> Admin["Admin Interface<br/>/admin/"]
+Root --> CT["config_type/urls.py<br/>Router for 'types'"]
 Root --> CI["config_instance/urls.py<br/>Router for 'instances'"]
+APIRoot --> Endpoints["Endpoints:<br/>- /admin/<br/>- /api/<br/>- /api/types/<br/>- /api/instances/"]
 CT --> CTV["config_type/views.py<br/>ConfigTypeViewSet"]
 CI --> CIV["config_instance/views.py<br/>ConfigInstanceViewSet"]
 CIV --> VM["versioning/models.py<br/>ConfigVersion model"]
@@ -45,23 +57,26 @@ CIV --> AM["audit/models.py<br/>AuditLog model"]
 ```
 
 **Diagram sources**
-- [confighub/urls.py:20-24](file://backend/confighub/urls.py#L20-L24)
+- [confighub/urls.py:21-32](file://backend/confighub/urls.py#L21-L32)
+- [confighub/urls.py:34-39](file://backend/confighub/urls.py#L34-L39)
 - [config_type/urls.py:5-10](file://backend/config_type/urls.py#L5-L10)
 - [config_instance/urls.py:5-10](file://backend/config_instance/urls.py#L5-L10)
 - [config_type/views.py:8-39](file://backend/config_type/views.py#L8-L39)
 - [config_instance/views.py:11-150](file://backend/config_instance/views.py#L11-L150)
 
 **Section sources**
-- [confighub/urls.py:20-24](file://backend/confighub/urls.py#L20-L24)
+- [confighub/urls.py:21-39](file://backend/confighub/urls.py#L21-L39)
 - [confighub/settings.py:33-39](file://backend/confighub/settings.py#L33-L39)
 
 ## Core Components
+- **API Root Endpoint**: Centralized endpoint providing structured discovery of available API endpoints for admin access and navigation.
 - Configuration Type Management: Provides CRUD operations for configuration types with search and filter support.
 - Configuration Instance Management: Provides CRUD operations for configuration instances, versioning, rollback, and content retrieval.
 - Version Control: Tracks historical versions of configuration instances.
 - Audit Logs: Records user actions on configuration instances.
 
 Key implementation highlights:
+- Centralized API discovery via dedicated root endpoint.
 - Automatic endpoints via DRF ViewSet routers.
 - Pagination configured globally.
 - Filtering via query parameters.
@@ -69,18 +84,24 @@ Key implementation highlights:
 - Audit logging on create/update.
 
 **Section sources**
+- [confighub/urls.py:21-32](file://backend/confighub/urls.py#L21-L32)
 - [config_type/views.py:8-39](file://backend/config_type/views.py#L8-L39)
 - [config_instance/views.py:11-150](file://backend/config_instance/views.py#L11-L150)
 - [confighub/settings.py:33-39](file://backend/confighub/settings.py#L33-L39)
 
 ## Architecture Overview
-The API follows a layered architecture:
+The API follows a layered architecture with centralized endpoint discovery:
+- **Root API Endpoint**: Provides structured discovery of available endpoints.
 - URL routing maps /api/types and /api/instances to respective ViewSets.
 - ViewSets handle HTTP verbs and delegate to serializers and models.
 - Versioning and audit models persist historical and activity data.
 
 ```mermaid
 graph TB
+subgraph "API Discovery Layer"
+RootEndpoint["GET /<br/>API Root Endpoint"]
+Endpoints["Endpoints Object:<br/>- admin: /admin/<br/>- api: /api/<br/>- types: /api/types/<br/>- instances: /api/instances/"]
+end
 subgraph "API Layer"
 Types["GET /api/types/<name>/instances"]
 Instances["GET /api/instances/{id}/versions<br/>POST /api/instances/{id}/rollback<br/>GET /api/instances/{id}/content"]
@@ -91,6 +112,7 @@ VSetI["ConfigInstanceViewSet"]
 Versions["ConfigVersion model"]
 Audit["AuditLog model"]
 end
+RootEndpoint --> Endpoints
 Types --> VSetT
 Instances --> VSetI
 VSetI --> Versions
@@ -98,12 +120,40 @@ VSetI --> Audit
 ```
 
 **Diagram sources**
+- [confighub/urls.py:21-32](file://backend/confighub/urls.py#L21-L32)
 - [config_type/views.py:27-39](file://backend/config_type/views.py#L27-L39)
 - [config_instance/views.py:92-149](file://backend/config_instance/views.py#L92-L149)
 - [versioning/models.py](file://backend/versioning/models.py)
 - [audit/models.py](file://backend/audit/models.py)
 
 ## Detailed Component Analysis
+
+### API Root Endpoint
+**New Feature** - Centralized API Discovery
+
+Endpoints:
+- GET /
+  - Purpose: Provide centralized API discovery with structured endpoint information.
+  - Response: JSON object containing API metadata and available endpoints.
+  - Response Schema:
+    ```json
+    {
+      "message": "ConfigHub API",
+      "version": "1.0.0",
+      "endpoints": {
+        "admin": "/admin/",
+        "api": "/api/",
+        "types": "/api/types/",
+        "instances": "/api/instances/"
+      }
+    }
+    ```
+  - Authentication: Not enforced by default settings.
+  - Permissions: AllowAny by default.
+  - Usage: Ideal for admin access and automated client initialization.
+
+**Section sources**
+- [confighub/urls.py:21-32](file://backend/confighub/urls.py#L21-L32)
 
 ### Configuration Type Management API
 Endpoints:
@@ -148,7 +198,7 @@ Endpoints:
   - Authentication: Not enforced by default.
 
 Notes:
-- Filtering and search are handled in the ViewSet’s get_queryset method.
+- Filtering and search are handled in the ViewSet's get_queryset method.
 - Lookup by name is enabled via lookup_field.
 
 **Section sources**
@@ -270,7 +320,7 @@ Note: There is no explicit endpoint to query audit logs in the current codebase.
 
 ## Dependency Analysis
 - URL routing:
-  - Root includes app routers for types and instances.
+  - Root includes dedicated API discovery endpoint and app routers for types and instances.
 - ViewSets:
   - ConfigTypeViewSet handles types.
   - ConfigInstanceViewSet handles instances and delegates to versioning and audit models.
@@ -283,8 +333,9 @@ Note: There is no explicit endpoint to query audit logs in the current codebase.
 
 ```mermaid
 graph LR
-Settings["confighub/settings.py<br/>REST defaults & pagination"] --> Types["config_type/views.py"]
-Settings --> Instances["config_instance/views.py"]
+Settings["confighub/settings.py<br/>REST defaults & pagination"] --> Root["confighub/urls.py<br/>API Root + Routers"]
+Root --> Types["config_type/views.py"]
+Root --> Instances["config_instance/views.py"]
 Types --> CTModels["config_type/models.py"]
 Instances --> CIModeuls["config_instance/models.py"]
 Instances --> Versions["versioning/models.py"]
@@ -293,6 +344,7 @@ Instances --> Audit["audit/models.py"]
 
 **Diagram sources**
 - [confighub/settings.py:33-39](file://backend/confighub/settings.py#L33-L39)
+- [confighub/urls.py:21-39](file://backend/confighub/urls.py#L21-L39)
 - [config_type/views.py:8-39](file://backend/config_type/views.py#L8-L39)
 - [config_instance/views.py:11-150](file://backend/config_instance/views.py#L11-L150)
 - [config_type/models.py](file://backend/config_type/models.py)
@@ -302,6 +354,7 @@ Instances --> Audit["audit/models.py"]
 
 **Section sources**
 - [confighub/settings.py:33-39](file://backend/confighub/settings.py#L33-L39)
+- [confighub/urls.py:21-39](file://backend/confighub/urls.py#L21-L39)
 - [config_type/views.py:8-39](file://backend/config_type/views.py#L8-L39)
 - [config_instance/views.py:11-150](file://backend/config_instance/views.py#L11-L150)
 
@@ -310,6 +363,7 @@ Instances --> Audit["audit/models.py"]
 - Select-related: Instance queries use select_related('config_type') to reduce database hits.
 - Transactions: Create/update operations are wrapped in atomic transactions to maintain consistency.
 - Filtering: Queries apply filters in Python for simplicity; consider adding database-level indexes for frequently filtered fields.
+- **New** API Root Endpoint: Lightweight JSON response with minimal processing overhead for endpoint discovery.
 
 [No sources needed since this section provides general guidance]
 
@@ -322,14 +376,18 @@ Common issues and resolutions:
   - Current settings allow any permission. If you enable authentication, ensure clients send credentials.
 - CORS:
   - CORS is enabled for all origins. For production, restrict origins and configure credentials as needed.
+- **New** API Root Endpoint Access:
+  - The root endpoint is accessible without authentication and provides basic API discovery information.
+  - Ensure clients handle the JSON response structure correctly.
 
 **Section sources**
 - [config_instance/views.py:112-116](file://backend/config_instance/views.py#L112-L116)
 - [confighub/settings.py:33-39](file://backend/confighub/settings.py#L33-L39)
 - [confighub/settings.py:31](file://backend/confighub/settings.py#L31)
+- [confighub/urls.py:21-32](file://backend/confighub/urls.py#L21-L32)
 
 ## Conclusion
-The AI-Ops Configuration Hub backend provides a clean REST API surface for managing configuration types and instances, with integrated versioning and audit logging. The APIs are generated via DRF ViewSets and routers, offering standard CRUD operations plus specialized actions for versions and content retrieval. Pagination and filtering are supported out-of-the-box, while authentication and permissions are currently permissive by default.
+The AI-Ops Configuration Hub backend provides a clean REST API surface for managing configuration types and instances, with integrated versioning and audit logging. The APIs are generated via DRF ViewSets and routers, offering standard CRUD operations plus specialized actions for versions and content retrieval. **New** The addition of a centralized API root endpoint enhances discoverability and provides structured access to available endpoints. Pagination and filtering are supported out-of-the-box, while authentication and permissions are currently permissive by default.
 
 [No sources needed since this section summarizes without analyzing specific files]
 
@@ -337,6 +395,7 @@ The AI-Ops Configuration Hub backend provides a clean REST API surface for manag
 
 ### API Versioning Strategy
 - No explicit API versioning is implemented in the current codebase. Clients should pin to the current base path (/api/) and expect backward-compatible changes unless documented otherwise.
+- **New** The API root endpoint includes a version field that can be used for client-side version detection.
 
 [No sources needed since this section provides general guidance]
 
@@ -383,12 +442,29 @@ The AI-Ops Configuration Hub backend provides a clean REST API surface for manag
 - CORS: Enabled for all origins; restrict origins and configure credentials for production.
 - CSRF: CSRF middleware is present; ensure proper handling for browser clients.
 - Database: Supports SQLite and MySQL8 backends; configure secure credentials and network access.
+- **New** API Root Endpoint: Minimal security risk as it only provides endpoint discovery information.
 
 **Section sources**
 - [confighub/settings.py:31](file://backend/confighub/settings.py#L31)
 - [confighub/settings.py:94-117](file://backend/confighub/settings.py#L94-L117)
+- [confighub/urls.py:21-32](file://backend/confighub/urls.py#L21-L32)
 
 ### Practical Examples
+
+- **New** Get API Discovery Information
+  - Method: GET
+  - URL: /
+  - Response: Structured endpoint information for admin access
+  - Expected response: {
+    "message": "ConfigHub API",
+    "version": "1.0.0",
+    "endpoints": {
+      "admin": "/admin/",
+      "api": "/api/",
+      "types": "/api/types/",
+      "instances": "/api/instances/"
+    }
+  }
 
 - Create a configuration type
   - Method: POST
