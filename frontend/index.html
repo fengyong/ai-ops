@@ -8,6 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+      /* 权限控制 - 防止按钮闪烁，默认隐藏，权限检查后再显示 */
+      .el-button {
+        opacity: 0 !important;
+        transition: opacity 0.2s ease;
+      }
+      .el-button[data-perm-visible] {
+        opacity: 1 !important;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

@@ -46,6 +46,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -86,6 +87,9 @@ const handleLogin = async () => {
         
         if (res.ok) {
           userStore.login(data.username)
+          // 登录成功后重新获取权限
+          const permissionStore = usePermissionStore()
+          await permissionStore.fetchPermissions()
           ElMessage.success('登录成功')
           router.push('/')
         } else {

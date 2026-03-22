@@ -20,22 +20,14 @@
         active-text-color="#409EFF"
         :collapse="isCollapse"
       >
-        <el-menu-item index="/">
-          <el-icon><HomeFilled /></el-icon>
+        <el-menu-item
+          v-for="menu in visibleMenus"
+          :key="menu.path"
+          :index="menu.path"
+        >
+          <el-icon><component :is="menu.icon" /></el-icon>
           <template #title>
-            <span>首页</span>
-          </template>
-        </el-menu-item>
-        <el-menu-item index="/types">
-          <el-icon><Document /></el-icon>
-          <template #title>
-            <span>配置类型</span>
-          </template>
-        </el-menu-item>
-        <el-menu-item index="/instances">
-          <el-icon><Files /></el-icon>
-          <template #title>
-            <span>配置实例</span>
+            <span>{{ menu.title }}</span>
           </template>
         </el-menu-item>
       </el-menu>
@@ -72,26 +64,25 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { HomeFilled, Document, Files, Setting, ArrowLeft, ArrowRight, User, ArrowDown, SwitchButton } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { Setting, ArrowLeft, ArrowRight, User, ArrowDown, SwitchButton } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 const isCollapse = ref(false)
 
+// 动态菜单 - 从后端获取，无需硬编码
+const visibleMenus = computed(() => {
+  return permissionStore.sidebarMenus || []
+})
+
+// 动态页面标题 - 从后端菜单配置获取
 const currentPageTitle = computed(() => {
-  const titles = {
-    '/': '仪表盘',
-    '/types': '配置类型管理',
-    '/types/create': '新建配置类型',
-    '/types/edit': '编辑配置类型',
-    '/instances': '配置实例管理',
-    '/instances/create': '新建配置实例',
-    '/instances/edit': '编辑配置实例'
-  }
-  return titles[route.path] || 'ConfigHub'
+  return permissionStore.getPageTitle(route.path)
 })
 
 const toggleCollapse = () => {
