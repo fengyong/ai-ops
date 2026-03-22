@@ -36,4 +36,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('config_type.urls')),
     path('api/', include('config_instance.urls')),
+    path('api/', include('versioning.urls')),
+    path('api/', include('audit.urls')),
+    path('api/', include('smart_permission.urls')),
 ]

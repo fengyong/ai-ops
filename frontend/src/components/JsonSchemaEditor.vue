@@ -134,26 +134,41 @@ defineExpose({
   overflow-y: auto;
 }
 
+/* 应用类似 audio_ops 项目的样式 */
 :deep(.je-object__container) {
-  border: 1px solid #e0e0e0;
+  border: 1px solid #3883fa;
   border-radius: 4px;
   padding: 15px;
   margin-bottom: 15px;
+  background-color: #fff;
+  box-shadow: 2px 2px 12px rgba(128, 128, 128, 0.3);
 }
 
 :deep(.je-object__title) {
   font-weight: bold;
-  color: #409EFF;
+  color: #3883fa;
   margin-bottom: 10px;
+  font-size: 11pt;
+  font-family: arial, sans-serif;
 }
 
 :deep(.form-control) {
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  padding: 10px 14px;
-  min-height: 42px;
-  font-size: 14px;
+  border: 1px solid #d3d3d3;
+  border-radius: 3px;
+  padding: 4px;
+  min-height: 32px;
+  font-size: 10pt;
   width: 100%;
+  box-sizing: border-box;
+  font-family: "dejavu sans mono", "droid sans mono", consolas, monaco, "lucida console", "courier new", courier, monospace, sans-serif;
+  color: #1A1A1A;
+  background-color: #fff;
+}
+
+:deep(.form-control:focus) {
+  outline: none;
+  border-color: #3883fa;
+  box-shadow: 0 0 5px rgba(56, 131, 250, 0.3);
 }
 
 /* 表格模式样式 */
@@ -161,18 +176,26 @@ defineExpose({
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 15px;
+  border: 1px solid #d3d3d3;
 }
 
 :deep(.je-table th),
 :deep(.je-table td) {
-  padding: 12px;
-  border: 1px solid #dcdfe6;
+  padding: 5px 10px;
+  border: 1px solid #d3d3d3;
   text-align: left;
+  box-sizing: border-box;
+  font-size: 10pt;
 }
 
 :deep(.je-table th) {
-  background-color: #f5f7fa;
+  background-color: #f5f5f5;
   font-weight: bold;
+  color: #4d4d4d;
+}
+
+:deep(.je-table tr:hover td) {
+  background-color: #f5f5f5;
 }
 
 /* Tab 模式样式 */
@@ -182,48 +205,146 @@ defineExpose({
 
 :deep(.je-tabs-content) {
   padding: 15px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #d3d3d3;
   border-top: none;
   border-radius: 0 0 4px 4px;
+  background-color: #fff;
 }
 
 :deep(.je-tab) {
-  padding: 10px 20px;
-  background-color: #f5f7fa;
-  border: 1px solid #dcdfe6;
+  padding: 4px 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #d3d3d3;
   border-bottom: none;
   cursor: pointer;
+  color: #4d4d4d;
+  font-size: 10pt;
+  font-family: arial, sans-serif;
 }
 
 :deep(.je-tab.active) {
   background-color: white;
   border-bottom: 1px solid white;
   margin-bottom: -1px;
+  color: #3883fa;
+  font-weight: bold;
 }
 
 :deep(.je-header) {
-  background-color: #f5f7fa;
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  background-color: #3883fa;
+  padding: 0 10px;
+  border-radius: 4px 4px 0 0;
+  margin-bottom: 0;
+  color: white;
+  font-family: arial, sans-serif;
+  font-size: 11pt;
+  line-height: 30px;
 }
 
 :deep(.je-btn) {
-  background-color: #409EFF;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  background-color: #f5f5f5;
+  color: #4d4d4d;
+  border: 1px solid #d3d3d3;
+  padding: 4px 20px;
+  border-radius: 3px;
   cursor: pointer;
   margin-right: 8px;
-  font-size: 14px;
+  font-size: 10pt;
+  font-family: arial, sans-serif;
+  transition: all 0.3s ease;
 }
 
 :deep(.je-btn:hover) {
-  background-color: #66b1ff;
+  background-color: #e5e5e5;
 }
 
 :deep(.je-btn-group) {
   margin-bottom: 10px;
+}
+
+/* 修复 theme management 中的表格样式 */
+:deep(.je-table-container) {
+  overflow-x: auto;
+}
+
+:deep(.je-object-properties) {
+  margin-top: 10px;
+}
+
+:deep(.je-property-key) {
+  font-weight: normal;
+  color: #4d4d4d;
+  margin-bottom: 5px;
+  font-size: 10pt;
+}
+
+:deep(.je-property-value) {
+  margin-bottom: 15px;
+}
+
+/* 修复日期选择器样式 */
+:deep(.je-datetime) {
+  width: 100%;
+}
+
+:deep(.je-datetime input) {
+  width: 100%;
+  border: 1px solid #d3d3d3;
+  border-radius: 3px;
+  padding: 4px;
+  font-size: 10pt;
+  background-color: #fff;
+  color: #4d4d4d;
+}
+
+:deep(.je-datetime input:focus) {
+  outline: none;
+  border-color: #3883fa;
+  box-shadow: 0 0 5px rgba(56, 131, 250, 0.3);
+}
+
+/* 高亮样式 */
+:deep(.je-highlight) {
+  background-color: #FFFFAB;
+  border: 1px solid yellow;
+  border-radius: 2px;
+}
+
+/* 字符串值样式 */
+:deep(.jsoneditor-value.jsoneditor-string) {
+  color: #008000;
+}
+
+/* 数字值样式 */
+:deep(.jsoneditor-value.jsoneditor-number) {
+  color: #ee422e;
+}
+
+/* 布尔值样式 */
+:deep(.jsoneditor-value.jsoneditor-boolean) {
+  color: #ff8c00;
+}
+
+/* null值样式 */
+:deep(.jsoneditor-value.jsoneditor-null) {
+  color: #004ED0;
+}
+
+/* 选中的行 */
+:deep(tr.jsoneditor-highlight),
+:deep(tr.jsoneditor-selected) {
+  background-color: #d3d3d3;
+}
+
+/* 错误提示样式 */
+:deep(.jsoneditor-schema-error) {
+  cursor: default;
+  display: inline-block;
+  height: 24px;
+  line-height: 24px;
+  position: relative;
+  text-align: center;
+  width: 24px;
+  color: #ee422e;
 }
 </style>
