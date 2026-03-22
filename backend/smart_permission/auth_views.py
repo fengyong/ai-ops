@@ -32,7 +32,7 @@ def user_login(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def user_logout(request):
     logout(request)
     return Response({

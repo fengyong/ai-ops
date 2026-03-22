@@ -104,20 +104,10 @@ router.beforeEach((to, from, next) => {
   const username = localStorage.getItem('username')
   const isAuthenticated = !!username
   
-  // 检查是否是动态路由（在基础路由中找不到）
-  const baseRoutePaths = ['/login', '/']
-  const isDynamicRoute = !baseRoutePaths.includes(to.path) && to.matched.length === 0
-  
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else if (to.path === '/login' && isAuthenticated) {
     next('/')
-  } else if (isDynamicRoute && isAuthenticated) {
-    // 动态路由可能还没加载，等待一下再试
-    console.log('[路由守卫] 等待动态路由加载:', to.path)
-    setTimeout(() => {
-      next({ ...to, replace: true })
-    }, 100)
   } else {
     next()
   }

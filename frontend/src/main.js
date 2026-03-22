@@ -35,7 +35,10 @@ app.use(ElementPlus)
 // 配合 index.html 中的 CSS，默认隐藏按钮，有权限后显示
 app.mixin({
   updated() {
-    if (!this.$route || !this.$el) return
+    if (!this.$route) return
+    
+    // 确保 $el 是 DOM 元素
+    if (!this.$el || !(this.$el instanceof Element)) return
     
     const permissionStore = usePermissionStore()
     if (!permissionStore || !permissionStore.allPermissions) return
