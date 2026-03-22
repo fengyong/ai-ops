@@ -42,24 +42,76 @@
 
 ## 快速开始
 
-### 1. 启动后端服务
+### 环境要求
+
+- Python 3.13+
+- Node.js 20+
+- (可选) Docker & Docker Compose
+
+### 方式一：本地开发启动
+
+#### 1. 启动后端服务
 
 ```bash
 cd backend
-.\venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
+
+# 创建虚拟环境（首次）
+python -m venv venv
+
+# 激活虚拟环境
+.\venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
+
+# 安装依赖（首次）
+pip install -r requirements.txt
+
+# 运行数据库迁移（首次）
+python manage.py migrate
+
+# 启动服务
+python manage.py runserver 0.0.0.0:8000
 ```
 
-### 2. 启动前端服务
+后端服务将在 http://localhost:8000/ 启动
+
+#### 2. 启动前端服务
 
 ```bash
 cd frontend
+
+# 安装依赖（首次）
+npm install
+
+# 启动开发服务器
 npm run dev
 ```
 
-### 3. 访问系统
+前端服务将在 http://localhost:3000/ 启动
 
-- 前端界面: http://localhost:3000/
-- 管理后台: http://localhost:8000/admin/
+#### 3. 初始化菜单数据（首次）
+
+```bash
+cd backend
+python init_menus.py
+```
+
+### 方式二：Docker 启动
+
+```bash
+# 启动所有服务
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+### 访问系统
+
+- **前端界面**: http://localhost:3000/
+- **管理后台**: http://localhost:8000/admin/
 
 ## 使用指南
 
