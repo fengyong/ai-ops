@@ -1,54 +1,99 @@
 <template>
   <div class="config-type-edit">
-    <el-card>
-      <template #header>
-        <span>{{ isEdit ? '编辑配置类型' : '新建配置类型' }}</span>
-      </template>
+    <div class="sf-panel">
+      <div class="corner-br"></div>
+      <div class="sf-panel-header">
+        <el-icon><Edit /></el-icon>
+        <span>{{ isEdit ? 'Edit Config Type' : 'New Config Type' }}</span>
+      </div>
+      <div class="sf-panel-content">
+        <el-form :model="form" :rules="rules" ref="formRef" label-position="top">
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="Type ID" prop="name">
+                <input 
+                  v-model="form.name" 
+                  :disabled="isEdit" 
+                  placeholder="e.g. database_config"
+                  class="sf-input font-tech-mono"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="Display Name" prop="title">
+                <input 
+                  v-model="form.title" 
+                  placeholder="e.g. Database Configuration"
+                  class="sf-input"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-      <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
-        <el-form-item label="类型标识" prop="name">
-          <el-input v-model="form.name" :disabled="isEdit" placeholder="如: database_config" />
-        </el-form-item>
+          <el-form-item label="Format" prop="format">
+            <div class="format-selector">
+              <div 
+                v-for="fmt in ['json', 'toml']" 
+                :key="fmt"
+                class="format-option"
+                :class="{ active: form.format === fmt }"
+                @click="form.format = fmt"
+              >
+                <span class="sf-tag" :class="fmt">{{ fmt.toUpperCase() }}</span>
+              </div>
+            </div>
+          </el-form-item>
 
-        <el-form-item label="显示名称" prop="title">
-          <el-input v-model="form.title" placeholder="如: 数据库配置" />
-        </el-form-item>
+          <el-form-item label="Description" prop="description">
+            <textarea 
+              v-model="form.description" 
+              rows="3"
+              class="sf-input"
+              placeholder="Describe this configuration type..."
+            ></textarea>
+          </el-form-item>
 
-        <el-form-item label="格式" prop="format">
-          <el-radio-group v-model="form.format">
-            <el-radio-button label="json">JSON</el-radio-button>
-            <el-radio-button label="toml">TOML</el-radio-button>
-          </el-radio-group>
-        </el-form-item>
+          <el-form-item label="JSON Schema" prop="schema">
+            <div class="schema-editor">
+              <div class="schema-info">
+                <el-icon><InfoFilled /></el-icon>
+                <span>Define the structure for auto-generated forms</span>
+              </div>
+              <textarea
+                v-model="schemaText"
+                rows="15"
+                @blur="validateSchema"
+                class="sf-input font-tech-mono"
+                style="font-size: 12px;"
+              ></textarea>
+              <div v-if="schemaError" class="schema-error">
+                <el-icon><Warning /></el-icon>
+                {{ schemaError }}
+              </div>
+            </div>
+          </el-form-item>
 
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" />
-        </el-form-item>
-
-        <el-form-item label="JSON Schema" prop="schema">
-          <div class="schema-editor">
-            <el-alert
-              title="定义配置的结构，用于自动生成表单"
-              type="info"
-              :closable="false"
-              style="margin-bottom: 10px"
-            />
-            <el-input
-              v-model="schemaText"
-              type="textarea"
-              :rows="15"
-              @blur="validateSchema"
-            />
-            <div v-if="schemaError" class="schema-error">{{ schemaError }}</div>
-          </div>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" @click="submit" :loading="saving">保存</el-button>
-          <el-button @click="$router.back()">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+          <el-form-item>
+            <button 
+              class="sf-button primary" 
+              @click="submit" 
+              :disabled="saving"
+              style="min-width: 120px;"
+            >
+              <span v-if="saving">Saving...</span>
+              <span v-else>{{ isEdit ? 'Update' : 'Create' }}</span>
+            </button>
+            <button 
+              class="sf-button" 
+              @click="$router.back()"
+              style="margin-left: 10px;"
+            >
+              Cancel
+            </button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -56,6 +101,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Edit, InfoFilled, Warning } from '@element-plus/icons-vue'
 import { configTypeApi } from '../api/config'
 
 const route = useRoute()
@@ -77,26 +123,27 @@ const form = ref({
 
 const defaultSchema = {
   type: 'object',
-  title: '配置',
+  title: 'Configuration',
   properties: {
     name: {
       type: 'string',
-      title: '名称'
+      title: 'Name'
     },
     enabled: {
       type: 'boolean',
-      title: '启用'
+      title: 'Enabled',
+      default: true
     }
   }
 }
 
 const rules = {
   name: [
-    { required: true, message: '请输入类型标识', trigger: 'blur' },
-    { pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/, message: '只能包含字母、数字和下划线，且以字母开头', trigger: 'blur' }
+    { required: true, message: 'Please enter type ID', trigger: 'blur' },
+    { pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/, message: 'Must start with letter, alphanumeric only', trigger: 'blur' }
   ],
-  title: [{ required: true, message: '请输入显示名称', trigger: 'blur' }],
-  format: [{ required: true, message: '请选择格式', trigger: 'change' }]
+  title: [{ required: true, message: 'Please enter display name', trigger: 'blur' }],
+  format: [{ required: true, message: 'Please select format', trigger: 'change' }]
 }
 
 watch(() => form.value.schema, (newVal) => {
@@ -112,14 +159,14 @@ const validateSchema = () => {
     schemaError.value = ''
     return true
   } catch (e) {
-    schemaError.value = 'JSON 格式错误: ' + e.message
+    schemaError.value = 'JSON Error: ' + e.message
     return false
   }
 }
 
 const submit = async () => {
   if (!validateSchema()) {
-    ElMessage.error('请修正 Schema 错误')
+    ElMessage.error('Please fix schema errors')
     return
   }
 
@@ -133,10 +180,10 @@ const submit = async () => {
     } else {
       await configTypeApi.create(form.value)
     }
-    ElMessage.success('保存成功')
+    ElMessage.success(isEdit.value ? 'Updated successfully' : 'Created successfully')
     router.push('/types')
   } catch (error) {
-    ElMessage.error(error.response?.data?.detail || '保存失败')
+    ElMessage.error(error.response?.data?.detail || 'Save failed')
   } finally {
     saving.value = false
   }
@@ -148,7 +195,7 @@ onMounted(async () => {
       const res = await configTypeApi.get(route.params.name)
       form.value = res.data
     } catch (error) {
-      ElMessage.error('加载配置类型失败')
+      ElMessage.error('Failed to load config type')
     }
   } else {
     form.value.schema = defaultSchema
@@ -158,13 +205,68 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+@import '../styles/sci-fi-theme.css';
+
+.format-selector {
+  display: flex;
+  gap: 15px;
+}
+
+.format-option {
+  padding: 10px 20px;
+  border: 1px solid var(--border-dimmed);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.format-option:hover {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.05);
+}
+
+.format-option.active {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
 .schema-editor {
   width: 100%;
 }
 
-.schema-error {
-  color: #f56c6c;
+.schema-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
   font-size: 12px;
-  margin-top: 5px;
+}
+
+.schema-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 15px;
+  background: rgba(255, 0, 68, 0.1);
+  border: 1px solid var(--neon-red);
+  border-radius: 4px;
+  color: var(--neon-red);
+  font-size: 12px;
+}
+
+:deep(.el-form-item__label) {
+  color: var(--neon-cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
 }
 </style>
